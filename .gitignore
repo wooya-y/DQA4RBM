@@ -1,3 +1,15 @@
-/results/
+# macOS
+.DS_Store
 
+# Python
+__pycache__/
+*.pyc
 
+# Jupyter
+.ipynb_checkpoints/
+
+# 개인 폴더 (예: 임시 작업)
+DQA2/
+
+# 결과 폴더
+results/

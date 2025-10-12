@@ -5,14 +5,19 @@ import torch
 import pickle
 import os
 from models.rbm import RBM
+from samplers.sampler import sample_negative_particles
+
 from utils.metrics import hamming_distance_with_symmetry
 from utils.graph_utils import load_or_create_graph
 from utils.data_utils import load_data
-from samplers.sampler import sample_negative_particles
 from utils.plot_utils import save_reconstruction_images
 
 
 def train(config):
+    """
+    Args:
+        config : 설정 정보
+    """
     device = torch.device('cpu')
     mode = config['mode']
     save_dir = config['save_dir']
@@ -43,7 +48,8 @@ def train(config):
     # --- Persistent chain (for PCD only) ---
     persistent_v = torch.sign(torch.randn(1, config['n_visible'])).to(device) if mode == 'pcd' else None
 
-    # --- Epoch 0 reconstruction error ---
+    # --- Epoch 0 reconstruction error 측정 (시작 시 오차 확인) ---
+    # train/val 데이터 한 배치만 뽑아 재구성 에러(hamming distance with symmetry) 계산 -> baseline log
     train_error_list, val_error_list, time_epoch = [], [], []
     best_val_error, best_model_state = float('inf'), None
 
@@ -92,7 +98,7 @@ def train(config):
         pos_grad = v_data.T @ h_data / v_data.size(0)     # (V,H)
         neg_grad = v_model.T @ h_model / v_model.size(0)  # (V,H)
         rbm.W.grad = -(pos_grad - neg_grad) * mask_tensor
-
+        
         # --- L2 is handled by optimizer's weight_decay automatically ---
         opt.step()
         opt.zero_grad()
@@ -100,7 +106,7 @@ def train(config):
         # --- Evaluation (train/val reconstruction error) ---
         h_sample = rbm.sample_h(v_data)
         v_recon = rbm.sample_v(h_sample)
-        train_error = hamming_distance_with_symmetry(v_data, v_recon).mean().item()
+        train_error = hamming_distance_with_symmetry(v_data, v_recon).mean().item() # humming distance 기록 
 
         with torch.no_grad():
             for data, _ in val_loader:
@@ -108,7 +114,7 @@ def train(config):
                 v_val = torch.sign(v_val * 2 - 1)
                 h_val = rbm.sample_h(v_val)
                 v_val_recon = rbm.sample_v(h_val)
-                val_error = hamming_distance_with_symmetry(v_val, v_val_recon).mean().item()
+                val_error = hamming_distance_with_symmetry(v_val, v_val_recon).mean().item() # humming distance 기록 
                 break
 
         elapsed = time.time() - start_time
@@ -118,6 +124,7 @@ def train(config):
         val_error_list.append(val_error)
         time_epoch.append(elapsed)
 
+        # best model 저장
         if val_error < best_val_error:
             best_val_error = val_error
             best_model_state = rbm.state_dict()
