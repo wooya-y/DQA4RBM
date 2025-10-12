@@ -13,3 +13,8 @@ DQA2/
 
 # 결과 폴더
 results/
+
+# Vim swap files
+*.swp
+*.swo
+*.swn
