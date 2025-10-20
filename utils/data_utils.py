@@ -18,9 +18,9 @@ def load_data(dataset_name, n_visible):
     if dataset_name == 'MNIST':
         dataset = datasets.MNIST('./DQA2/data', train=True, download=True, transform=transform)
     elif dataset_name == 'fMNIST':
-        dataset = datasets.FashionMNIST('./DQA2/data', train=True, download=False, transform=transform)
+        dataset = datasets.FashionMNIST('./DQA2/data', train=True, download=True, transform=transform)
     elif dataset_name == 'kMNIST':
-        dataset = datasets.KMNIST('./DQA2/data', train=True, download=False, transform=transform)
+        dataset = datasets.KMNIST('./DQA2/data', train=True, download=True, transform=transform)
     else:
         raise ValueError("Unsupported dataset")
 
