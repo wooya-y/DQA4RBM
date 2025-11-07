@@ -39,7 +39,7 @@ def get_config():
         anneal_schedule = [(0.0, 0.0), (0.005, 1.0)]
 
         # D-Wave token 설정 (실제 토큰으로 교체하세요)
-        dwave_token = "aK5O-799fe2f20ab918c05be4d9f1f596e9c7cffc7fa2"  # 여기에 실제 D-Wave token을 입력하세요
+        dwave_token = ""  # 여기에 실제 D-Wave token을 입력하세요
         
         base_config.update({
             'beta_rescale': beta_rescale,
